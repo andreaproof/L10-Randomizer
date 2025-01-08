@@ -5,34 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randomizer</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        textarea, button { margin: 10px 0; width: 80%; }
-        textarea { height: 150px; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px auto;
+            max-width: 300px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        li {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 18px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button i {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
-    <textarea id="nameList">
-Andrea
-Chad
-Cory
-Dima
-Gabe
-Jesse
-Marci
-Michelle
-Pete
-Shaun
-</textarea>
-    <br>
-    <button onclick="randomizeNames()">Randomize</button>
-    <h2>Randomized List:</h2>
-    <div id="output"></div>
+    <ul id="nameList">
+        <li>Andrea</li>
+        <li>Chad</li>
+        <li>Cory</li>
+        <li>Dima</li>
+        <li>Gabe</li>
+        <li>Jesse</li>
+        <li>Marci</li>
+        <li>Michelle</li>
+        <li>Pete</li>
+        <li>Shaun</li>
+    </ul>
+    <button onclick="randomizeNames()">
+        <i>🔀</i> Randomize
+    </button>
 
     <script>
         function randomizeNames() {
-            const names = document.getElementById('nameList').value.split('\n').filter(name => name.trim());
-            const shuffled = names.sort(() => Math.random() - 0.5);
-            document.getElementById('output').innerHTML = shuffled.map(name => `<p>${name}</p>`).join('');
+            const list = document.getElementById('nameList');
+            const names = Array.from(list.children); // Convert list items to an array
+            const shuffled = names.sort(() => Math.random() - 0.5); // Shuffle the array
+            list.innerHTML = ''; // Clear the list
+            shuffled.forEach(item => list.appendChild(item)); // Append shuffled items back
         }
     </script>
 </body>
