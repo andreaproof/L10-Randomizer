@@ -11,6 +11,12 @@
             padding: 20px;
             background-color: #f9f9f9;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Make the widget vertically centered */
+            margin: 0;
         }
 
         ul {
@@ -22,6 +28,8 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fade-in 0.3s ease-in-out; /* Subtle animation for list */
         }
 
         li {
@@ -50,19 +58,31 @@
             gap: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         button:hover {
             background-color: #0056b3;
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
 
         button:active {
-            transform: scale(0.98);
+            animation: rainbow 1s ease infinite alternate; /* Rainbow animation */
         }
 
-        button i {
-            font-size: 18px;
+        /* Rainbow effect on click */
+        @keyframes rainbow {
+            0% { box-shadow: 0 0 10px #ff0000; }
+            20% { box-shadow: 0 0 10px #ff7f00; }
+            40% { box-shadow: 0 0 10px #ffff00; }
+            60% { box-shadow: 0 0 10px #00ff00; }
+            80% { box-shadow: 0 0 10px #0000ff; }
+            100% { box-shadow: 0 0 10px #8b00ff; }
+        }
+
+        /* Fade-in animation for the list */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -90,6 +110,12 @@
             const shuffled = names.sort(() => Math.random() - 0.5); // Shuffle the array
             list.innerHTML = ''; // Clear the list
             shuffled.forEach(item => list.appendChild(item)); // Append shuffled items back
+
+            // Add animation to the list on randomize
+            list.style.animation = 'none'; // Reset animation
+            setTimeout(() => {
+                list.style.animation = 'fade-in 0.3s ease-in-out';
+            }, 0);
         }
     </script>
 </body>
