@@ -1,6 +1,6 @@
 # L10 Randomizer
 
-A simple widget that displays a list of names and allows users to randomize the order with the click of a button. This project is styled for a clean, user-friendly experience and can be embedded into tools like **Notion** using GitHub Pages.
+A whimsical and visually enhanced widget that displays a list of names and allows users to randomize the order with the click of a button. Perfect for quick team-building activities, icebreakers, or decision-making. The widget is styled for a clean, fun experience and can be embedded into tools like **Notion** using GitHub Pages.
 
 ---
 
@@ -9,6 +9,8 @@ A simple widget that displays a list of names and allows users to randomize the 
 - **Preloaded Names**: The list comes preloaded with a set of names.
 - **Single List Display**: One clean, styled list for simplicity.
 - **Randomization**: A button shuffles the displayed list in real-time.
+- **Rainbow Button Effect**: Clicking the button triggers a delightful rainbow animation.
+- **Subtle List Animation**: The list gently fades in with a smooth animation when randomized.
 - **Responsive Design**: Works beautifully on both desktop and mobile.
 
 ---
@@ -23,7 +25,8 @@ Check out the live widget here: [L10 Randomizer](https://andreaproof.github.io/L
 
 1. Visit the [live demo](https://andreaproof.github.io/L10-Randomizer/).
 2. Click the **Randomize** button to shuffle the order of the names.
-3. Embed the widget in **Notion** or other tools (see instructions below).
+3. Watch the rainbow animation on the button and the fade-in effect on the list.
+4. Embed the widget in **Notion** or other tools (see instructions below).
 
 ---
 
@@ -43,7 +46,7 @@ Check out the live widget here: [L10 Randomizer](https://andreaproof.github.io/L
 
 - **HTML**: For the structure.
 - **CSS**: For styling the widget.
-- **JavaScript**: For randomizing the list.
+- **JavaScript**: For randomizing the list and handling animations.
 
 ---
 
@@ -53,3 +56,12 @@ Check out the live widget here: [L10 Randomizer](https://andreaproof.github.io/L
    ```bash
    git clone https://github.com/andreaproof/L10-Randomizer.git
    cd L10-Randomizer
+2.	Open the index.html file in a browser.
+
+---
+
+### Recent Updates
+
+- **Rainbow Button Animation**: Added a whimsical, rainbow glow effect when the button is clicked.
+- **Fade-in Animation**: The list now fades in smoothly every time it randomizes.
+- **Widget Size Adjustment**:  Shortened the height and vertically centered the widget for better usability.
