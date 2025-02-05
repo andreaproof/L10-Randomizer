@@ -104,16 +104,18 @@
     <script>
         function randomizeNames() {
             const list = document.getElementById('nameList');
-            const names = Array.from(list.children); // Convert list items to an array
-            const shuffled = names.sort(() => Math.random() - 0.5); // Shuffle the array
-            list.innerHTML = ''; // Clear the list
-            shuffled.forEach(item => list.appendChild(item)); // Append shuffled items back
+            const names = Array.from(list.children);
+            const shuffled = names.sort(() => Math.random() - 0.5);
+            list.innerHTML = '';
+            shuffled.forEach(item => list.appendChild(item));
 
-            // Add animation to the list on randomize
-            list.style.animation = 'none'; // Reset animation
-            setTimeout(() => {
-                list.style.animation = 'fade-in 0.3s ease-in-out';
-            }, 0);
+            // Fix: Force animation reset using requestAnimationFrame()
+            list.style.animation = 'none';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    list.style.animation = 'fade-in 0.3s ease-in-out';
+                });
+            });
         }
     </script>
 </body>
