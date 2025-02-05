@@ -61,7 +61,8 @@ Check out the live widget here: [L10 Randomizer](https://andreaproof.github.io/L
 ---
 
 ### Recent Updates
-
+- **One-Click Randomization**: Clicking the button shuffles the displayed names in real-time.
+- **First-Click Fix**: No more needing to press the button twice—works instantly!
 - **Rainbow Button Animation**: Added a whimsical, rainbow glow effect when the button is clicked.
 - **Fade-in Animation**: The list now fades in smoothly every time it randomizes.
 - **Widget Size Adjustment**:  Shortened the height and vertically centered the widget for better usability.
