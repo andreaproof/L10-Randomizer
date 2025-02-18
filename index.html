@@ -75,8 +75,7 @@
             margin-top: 10px;
         }
 
-        .settings-menu,
-        .name-editor {
+        .modal {
             display: none;
             position: absolute;
             top: 50%;
@@ -91,30 +90,32 @@
             text-align: left;
         }
 
-        .settings-menu h3,
-        .name-editor h3 {
+        .modal h3 {
             margin: 0 0 15px;
         }
 
-        .settings-menu button,
-        .name-editor button {
+        .modal button {
             width: 100%;
             margin-top: 5px;
         }
 
         .close-btn {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
+            top: -10px;
+            right: -10px;
+            background: white;
             border: none;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            color: #555;
+            color: #333;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .name-editor input {
-            width: calc(100% - 20px);
+            width: 100%;
             padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
@@ -175,14 +176,14 @@
     <div class="overlay" onclick="closeAllModals()"></div>
 
     <!-- Settings Menu -->
-    <div class="settings-menu">
+    <div class="modal settings-menu">
         <button class="close-btn" onclick="closeAllModals()">❌</button>
         <h3>Settings</h3>
         <button onclick="openNameEditor()">✏️ Edit Name List</button>
     </div>
 
     <!-- Name Editor -->
-    <div class="name-editor">
+    <div class="modal name-editor">
         <button class="close-btn" onclick="closeAllModals()">❌</button>
         <h3>Edit Names</h3>
         <input type="text" id="newNameInput" placeholder="Enter name">
