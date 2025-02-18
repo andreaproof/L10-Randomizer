@@ -83,79 +83,80 @@
     </div>
 
     <script>
-        // Replace with your actual Supabase credentials
+        // 🔥 Replace with your actual Supabase credentials
         const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Fetch names from Supabase and update the UI
+        // ✅ Fetch names from Supabase and update the UI
         async function fetchNames() {
-            const { data, error } = await supabase.from('names').select('name').order('created_at');
+            console.log("Fetching names...");
+            const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
             if (error) {
-                console.error('Error fetching names:', error);
+                console.error("Error fetching names:", error);
                 return;
             }
-            if (data.length === 0) {
-                console.log("No names found in the database.");
-            }
-            updateList(data.map(n => n.name)); // Extract 'name' from each object
+            console.log("Names fetched:", data);
+            updateList(data);
         }
 
-        // Function to add a new name
+        // ✅ Add a new name to Supabase
         async function addName() {
             const newName = prompt("Enter a new name:");
             if (!newName) return;
 
             const { data, error } = await supabase.from('names').insert([{ name: newName }]);
             if (error) {
-                console.error('Error adding name:', error);
+                console.error("Error adding name:", error);
             } else {
+                console.log("Name added:", data);
                 fetchNames(); // Refresh list
             }
         }
 
-        // Function to delete a name
+        // ✅ Delete a name from Supabase
         async function deleteName(name) {
             const { error } = await supabase.from('names').delete().match({ name });
             if (error) {
-                console.error('Error deleting name:', error);
+                console.error("Error deleting name:", error);
             } else {
+                console.log("Name deleted:", name);
                 fetchNames();
             }
         }
 
-        // Function to update the displayed list
+        // ✅ Update the displayed name list
         function updateList(names) {
             const list = document.getElementById("nameList");
             list.innerHTML = "";
-            names.forEach(name => {
+            names.forEach(({ name }) => {
                 let li = document.createElement("li");
                 li.textContent = name;
                 list.appendChild(li);
             });
         }
 
-        // Function to randomize the name order
+        // ✅ Randomize the name order
         function randomizeNames() {
             const list = document.getElementById("nameList");
             const names = Array.from(list.children).map(li => li.textContent);
             names.sort(() => Math.random() - 0.5);
-            updateList(names);
+            updateList(names.map(name => ({ name }))); // Ensure correct format
         }
 
-        // Function to copy the names to clipboard
+        // ✅ Copy names to clipboard
         function copyToClipboard() {
             const list = document.getElementById("nameList");
             const names = Array.from(list.children).map(li => li.textContent).join("\n");
             navigator.clipboard.writeText(names);
         }
 
-        // Enable real-time syncing
-        supabase.channel('realtime:public:names')
+        // ✅ Enable real-time sync
+        supabase.channel('names')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
             .subscribe();
 
-        // Fetch initial names when page loads
+        // ✅ Fetch initial names on page load
         fetchNames();
     </script>
 </body>
