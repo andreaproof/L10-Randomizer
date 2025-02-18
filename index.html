@@ -34,9 +34,7 @@
             margin: 5px 0;
             padding: 10px;
             border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: left;
         }
 
         li:last-child {
@@ -92,12 +90,6 @@
             z-index: 10;
         }
 
-        .settings-menu button {
-            width: 100%;
-            margin-top: 5px;
-            background: #007BFF;
-        }
-
         .name-editor {
             display: none;
             position: absolute;
@@ -143,7 +135,6 @@
             font-size: 18px;
             width: 24px;
             height: 24px;
-            text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -202,7 +193,7 @@
             list.innerHTML = "";
             names.forEach(name => {
                 let li = document.createElement("li");
-                li.innerHTML = `<span>${name}</span><button class="delete-btn" onclick="deleteName('${name}')">🗑</button>`;
+                li.textContent = name;
                 list.appendChild(li);
             });
         }
@@ -226,6 +217,14 @@
         function openNameEditor() {
             document.querySelector(".settings-menu").style.display = "none";
             document.querySelector(".name-editor").style.display = "block";
+            let settingsList = document.getElementById("settingsList");
+            settingsList.innerHTML = "";
+            let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
+            names.forEach((name, index) => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>${name}</span><button class="delete-btn" onclick="deleteName(${index})">🗑</button>`;
+                settingsList.appendChild(li);
+            });
         }
 
         function closeAllModals() {
@@ -237,16 +236,16 @@
         function addName() {
             let newName = document.getElementById("newNameInput").value.trim();
             if (newName) {
-                let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
+                let names = JSON.parse(localStorage.getItem("customNames")) || [];
                 names.push(newName);
                 localStorage.setItem("customNames", JSON.stringify(names));
                 openNameEditor();
             }
         }
 
-        function deleteName(name) {
+        function deleteName(index) {
             let names = JSON.parse(localStorage.getItem("customNames"));
-            names = names.filter(n => n !== name);
+            names.splice(index, 1);
             localStorage.setItem("customNames", JSON.stringify(names));
             openNameEditor();
         }
