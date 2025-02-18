@@ -61,6 +61,7 @@ Check out the live widget here: [L10 Randomizer](https://andreaproof.github.io/L
 ---
 
 ### Recent Updates
+- **Customizable Name List**: Add, delete, and save names across refreshes.
 - **"Copy to Clipboard" Button**: Quickly copies the randomized list with line breaks.
 - **One-Click Randomization**: Clicking the button shuffles the displayed names in real-time.
 - **First-Click Fix**: No more needing to press the button twice—works instantly!
