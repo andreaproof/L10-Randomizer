@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randomizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,131 +69,53 @@
         button:hover {
             background-color: #0056b3;
         }
-
-        .settings-icon {
-            font-size: 24px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .modal {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 320px;
-            z-index: 20;
-            text-align: left;
-        }
-
-        .modal h3 {
-            margin: 0 0 15px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: -60px;
-            right: -10px;
-            background: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: #333;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .name-editor input {
-            width: 280px;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            display: block;
-        }
-
-        .name-editor ul {
-            padding: 0;
-            margin: 10px 0;
-        }
-
-        .name-editor li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 5px 10px;
-            background: #f9f9f9;
-            margin-bottom: 5px;
-            border-radius: 5px;
-        }
-
-        .delete-btn {
-            background: transparent;
-            color: red;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 10;
-        }
     </style>
 </head>
 <body>
-    <span class="settings-icon" onclick="openSettings()">⚙️</span>
 
+    <h2>Name Randomizer</h2>
     <ul id="nameList"></ul>
 
     <div class="buttons-container">
         <button onclick="randomizeNames()">🔀 Randomize</button>
         <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
-    </div>
-
-    <div class="overlay" onclick="closeAllModals()"></div>
-
-    <!-- Settings Menu -->
-    <div class="modal settings-menu">
-        <button class="close-btn" onclick="closeAllModals()">❌</button>
-        <h3>Settings</h3>
-        <button onclick="openNameEditor()">✏️ Edit Name List</button>
-    </div>
-
-    <!-- Name Editor -->
-    <div class="modal name-editor">
-        <button class="close-btn" onclick="closeAllModals()">❌</button>
-        <h3>Edit Names</h3>
-        <input type="text" id="newNameInput" placeholder="Enter name">
         <button onclick="addName()">➕ Add Name</button>
-        <ul id="settingsList"></ul>
-        <button class="save-btn" onclick="saveNames()" style="background: #28a745;">💾 Save List</button>
     </div>
 
     <script>
-        const defaultNames = ["Andrea", "Chad", "Cory", "Dima", "Gabe", "Jesse", "Marci", "Michelle", "Pete", "Shaun"];
-        
-        function loadNames() {
-            let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
-            updateList(names);
+        // Replace with your actual Supabase credentials
+        const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function fetchNames() {
+            const { data, error } = await supabase.from('names').select('*').order('created_at');
+            if (error) {
+                console.error('Error fetching names:', error);
+                return;
+            }
+            updateList(data.map(n => n.name));
+        }
+
+        async function addName() {
+            const newName = prompt("Enter a new name:");
+            if (!newName) return;
+
+            const { data, error } = await supabase.from('names').insert([{ name: newName }]);
+            if (error) {
+                console.error('Error adding name:', error);
+            } else {
+                fetchNames();
+            }
+        }
+
+        async function deleteName(name) {
+            const { error } = await supabase.from('names').delete().match({ name });
+            if (error) {
+                console.error('Error deleting name:', error);
+            } else {
+                fetchNames();
+            }
         }
 
         function updateList(names) {
@@ -206,63 +129,25 @@
         }
 
         function randomizeNames() {
-            let names = Array.from(document.getElementById("nameList").children).map(li => li.textContent);
+            const list = document.getElementById("nameList");
+            const names = Array.from(list.children).map(li => li.textContent);
             names.sort(() => Math.random() - 0.5);
             updateList(names);
         }
 
         function copyToClipboard() {
-            let names = Array.from(document.getElementById("nameList").children).map(li => li.textContent).join("\n");
+            const list = document.getElementById("nameList");
+            const names = Array.from(list.children).map(li => li.textContent).join("\n");
             navigator.clipboard.writeText(names);
         }
 
-        function openSettings() {
-            document.querySelector(".settings-menu").style.display = "block";
-            document.querySelector(".overlay").style.display = "block";
-        }
+        // Enable real-time syncing
+        supabase.channel('names')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
+            .subscribe();
 
-        function openNameEditor() {
-            document.querySelector(".settings-menu").style.display = "none";
-            document.querySelector(".name-editor").style.display = "block";
-            let settingsList = document.getElementById("settingsList");
-            settingsList.innerHTML = "";
-            let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
-            names.forEach((name, index) => {
-                let li = document.createElement("li");
-                li.innerHTML = `<span>${name}</span><button class="delete-btn" onclick="deleteName(${index})">🗑</button>`;
-                settingsList.appendChild(li);
-            });
-        }
-
-        function closeAllModals() {
-            document.querySelector(".settings-menu").style.display = "none";
-            document.querySelector(".name-editor").style.display = "none";
-            document.querySelector(".overlay").style.display = "none";
-        }
-
-        function addName() {
-            let newName = document.getElementById("newNameInput").value.trim();
-            if (newName) {
-                let names = JSON.parse(localStorage.getItem("customNames")) || [];
-                names.push(newName);
-                localStorage.setItem("customNames", JSON.stringify(names));
-                openNameEditor();
-            }
-        }
-
-        function deleteName(index) {
-            let names = JSON.parse(localStorage.getItem("customNames"));
-            names.splice(index, 1);
-            localStorage.setItem("customNames", JSON.stringify(names));
-            openNameEditor();
-        }
-
-        function saveNames() {
-            loadNames();
-            closeAllModals();
-        }
-
-        loadNames();
+        // Fetch initial names
+        fetchNames();
     </script>
 </body>
 </html>
