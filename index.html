@@ -34,6 +34,9 @@
             margin: 5px 0;
             padding: 10px;
             border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         li:last-child {
@@ -82,14 +85,34 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 250px;
+            z-index: 10;
+        }
+
+        .settings-menu button {
+            width: 100%;
+            margin-top: 5px;
+            background: #007BFF;
+        }
+
+        .name-editor {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 320px;
-            z-index: 10;
+            z-index: 20;
         }
 
-        .settings-menu input {
+        .name-editor input {
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
@@ -97,12 +120,12 @@
             border-radius: 5px;
         }
 
-        .settings-menu ul {
+        .name-editor ul {
             padding: 0;
             margin: 10px 0;
         }
 
-        .settings-menu li {
+        .name-editor li {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -112,19 +135,18 @@
             border-radius: 5px;
         }
 
-        .settings-menu .delete-btn {
-            background: red;
-            color: white;
+        .delete-btn {
+            background: transparent;
+            color: red;
             border: none;
-            padding: 5px;
             cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .settings-menu .save-btn {
-            margin-top: 10px;
-            width: 100%;
-            background-color: #28a745;
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .overlay {
@@ -149,14 +171,22 @@
         <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
     </div>
 
-    <div class="overlay" onclick="closeSettings()"></div>
+    <div class="overlay" onclick="closeAllModals()"></div>
 
+    <!-- Settings Menu -->
     <div class="settings-menu">
+        <h3>Settings</h3>
+        <button onclick="openNameEditor()">✏️ Edit Name List</button>
+        <button onclick="closeAllModals()" style="background: #dc3545;">❌ Close</button>
+    </div>
+
+    <!-- Name Editor -->
+    <div class="name-editor">
         <h3>Edit Names</h3>
         <input type="text" id="newNameInput" placeholder="Enter name">
         <button onclick="addName()">➕ Add Name</button>
         <ul id="settingsList"></ul>
-        <button class="save-btn" onclick="saveNames()">💾 Save List</button>
+        <button class="save-btn" onclick="saveNames()" style="background: #28a745;">💾 Save List</button>
     </div>
 
     <script>
@@ -172,7 +202,7 @@
             list.innerHTML = "";
             names.forEach(name => {
                 let li = document.createElement("li");
-                li.textContent = name;
+                li.innerHTML = `<span>${name}</span><button class="delete-btn" onclick="deleteName('${name}')">🗑</button>`;
                 list.appendChild(li);
             });
         }
@@ -191,18 +221,16 @@
         function openSettings() {
             document.querySelector(".settings-menu").style.display = "block";
             document.querySelector(".overlay").style.display = "block";
-            let settingsList = document.getElementById("settingsList");
-            settingsList.innerHTML = "";
-            let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
-            names.forEach((name, index) => {
-                let li = document.createElement("li");
-                li.innerHTML = `${name} <button class="delete-btn" onclick="deleteName(${index})">🗑</button>`;
-                settingsList.appendChild(li);
-            });
         }
 
-        function closeSettings() {
+        function openNameEditor() {
             document.querySelector(".settings-menu").style.display = "none";
+            document.querySelector(".name-editor").style.display = "block";
+        }
+
+        function closeAllModals() {
+            document.querySelector(".settings-menu").style.display = "none";
+            document.querySelector(".name-editor").style.display = "none";
             document.querySelector(".overlay").style.display = "none";
         }
 
@@ -212,20 +240,20 @@
                 let names = JSON.parse(localStorage.getItem("customNames")) || defaultNames;
                 names.push(newName);
                 localStorage.setItem("customNames", JSON.stringify(names));
-                openSettings();
+                openNameEditor();
             }
         }
 
-        function deleteName(index) {
+        function deleteName(name) {
             let names = JSON.parse(localStorage.getItem("customNames"));
-            names.splice(index, 1);
+            names = names.filter(n => n !== name);
             localStorage.setItem("customNames", JSON.stringify(names));
-            openSettings();
+            openNameEditor();
         }
 
         function saveNames() {
             loadNames();
-            closeSettings();
+            closeAllModals();
         }
 
         loadNames();
