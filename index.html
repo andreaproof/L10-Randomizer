@@ -35,6 +35,9 @@
             padding: 10px;
             border-bottom: 1px solid #f0f0f0;
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         li:last-child {
@@ -69,11 +72,87 @@
         button:hover {
             background-color: #0056b3;
         }
+
+        .settings-icon {
+            font-size: 24px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            z-index: 20;
+            text-align: left;
+            position: relative;
+        }
+
+        .modal h3 {
+            margin: 0 0 15px;
+        }
+
+        .modal button {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .name-editor input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: red;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Name Randomizer</h2>
+    <span class="settings-icon" onclick="openSettings()">⚙️</span>
+
     <ul id="nameList"></ul>
 
     <div class="buttons-container">
@@ -82,90 +161,85 @@
         <button onclick="addName()">➕ Add Name</button>
     </div>
 
-    <!-- Supabase Initialization Must Be in a Separate Script -->
+    <div class="overlay" onclick="closeAllModals()"></div>
+
+    <!-- Settings Menu -->
+    <div class="modal settings-menu">
+        <button class="close-btn" onclick="closeAllModals()">❌</button>
+        <h3>Settings</h3>
+        <button onclick="openNameEditor()">✏️ Edit Name List</button>
+    </div>
+
+    <!-- Name Editor -->
+    <div class="modal name-editor">
+        <button class="close-btn" onclick="closeAllModals()">❌</button>
+        <h3>Edit Names</h3>
+        <ul id="settingsList"></ul>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
-            // ✅ Supabase Initialization (after the document is fully loaded)
             const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-            console.log("Supabase initialized", supabase);
-
-            // ✅ Fetch names from Supabase and update the UI
             async function fetchNames() {
-                console.log("Fetching names...");
                 const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
                 if (error) {
                     console.error("Error fetching names:", error);
                     return;
                 }
-                console.log("Names fetched:", data);
                 updateList(data);
             }
 
-            // ✅ Add a new name to Supabase
             async function addName() {
                 const newName = prompt("Enter a new name:");
                 if (!newName) return;
 
-                const { data, error } = await supabase.from('names').insert([{ name: newName }]);
-                if (error) {
-                    console.error("Error adding name:", error);
-                } else {
-                    console.log("Name added:", data);
-                    fetchNames(); // Refresh list
-                }
+                const { error } = await supabase.from('names').insert([{ name: newName }]);
+                if (!error) fetchNames();
             }
 
-            // ✅ Delete a name from Supabase
-            async function deleteName(name) {
-                const { error } = await supabase.from('names').delete().match({ name });
-                if (error) {
-                    console.error("Error deleting name:", error);
-                } else {
-                    console.log("Name deleted:", name);
-                    fetchNames();
-                }
+            async function deleteName(id) {
+                const { error } = await supabase.from('names').delete().match({ id });
+                if (!error) fetchNames();
             }
 
-            // ✅ Update the displayed name list
             function updateList(names) {
                 const list = document.getElementById("nameList");
                 list.innerHTML = "";
-                names.forEach(({ name }) => {
+                names.forEach(({ id, name }) => {
                     let li = document.createElement("li");
-                    li.textContent = name;
+                    li.innerHTML = `<span>${name}</span><button class="delete-btn" onclick="deleteName('${id}')">🗑</button>`;
                     list.appendChild(li);
                 });
             }
 
-            // ✅ Randomize the name order
-            function randomizeNames() {
-                const list = document.getElementById("nameList");
-                const names = Array.from(list.children).map(li => li.textContent);
-                names.sort(() => Math.random() - 0.5);
-                updateList(names.map(name => ({ name }))); // Ensure correct format
+            function openSettings() {
+                document.querySelector(".settings-menu").style.display = "block";
+                document.querySelector(".overlay").style.display = "block";
             }
 
-            // ✅ Copy names to clipboard
-            function copyToClipboard() {
-                const list = document.getElementById("nameList");
-                const names = Array.from(list.children).map(li => li.textContent).join("\n");
-                navigator.clipboard.writeText(names);
+            function openNameEditor() {
+                document.querySelector(".settings-menu").style.display = "none";
+                document.querySelector(".name-editor").style.display = "block";
+                fetchNames();
             }
 
-            // ✅ Enable real-time sync
+            function closeAllModals() {
+                document.querySelector(".settings-menu").style.display = "none";
+                document.querySelector(".name-editor").style.display = "none";
+                document.querySelector(".overlay").style.display = "none";
+            }
+
             supabase.channel('names')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
                 .subscribe();
 
-            // ✅ Fetch initial names on page load
             fetchNames();
 
-            // Expose functions globally (so button clicks work)
-            window.randomizeNames = randomizeNames;
-            window.copyToClipboard = copyToClipboard;
+            window.randomizeNames = () => updateList([...document.querySelectorAll("#nameList li span")].map(el => ({ name: el.textContent })).sort(() => Math.random() - 0.5));
+            window.copyToClipboard = () => navigator.clipboard.writeText([...document.querySelectorAll("#nameList li span")].map(el => el.textContent).join("\n"));
             window.addName = addName;
             window.deleteName = deleteName;
         });
