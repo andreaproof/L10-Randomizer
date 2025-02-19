@@ -164,9 +164,9 @@
                 list.appendChild(li);
             });
 
-            // Properly hide "Randomize" & "Copy" buttons when in edit mode
-            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "inline-block";
-            document.getElementById("copyBtn").style.display = isEditing ? "none" : "inline-block";
+            // ✅ Force hiding/showing buttons correctly
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "";
         }
 
         function toggleEditMode() {
@@ -179,9 +179,9 @@
 
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // Hide "Randomize" & "Copy" buttons when in edit mode
-            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "inline-block";
-            document.getElementById("copyBtn").style.display = isEditing ? "none" : "inline-block";
+            // ✅ Ensuring the buttons are completely hidden in edit mode
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "";
         }
 
         function randomizeNames() {
