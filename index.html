@@ -120,14 +120,23 @@
         let isEditing = false;
         let currentOrder = []; // Stores the randomized order
 
-        async function fetchNames() {
+        async function fetchNames(preserveOrder = false) {
             const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
             if (error) {
                 console.error("Error fetching names:", error);
                 return;
             }
-            currentOrder = data; // Store order for reference
-            updateList(data);
+            
+            if (!preserveOrder) {
+                currentOrder = data; // Store the order for reference if not preserving
+            } else {
+                // Preserve the randomized order and add new names at the end
+                const existingIds = new Set(currentOrder.map(item => item.id));
+                const newNames = data.filter(item => !existingIds.has(item.id));
+                currentOrder = [...currentOrder, ...newNames]; 
+            }
+
+            updateList(currentOrder);
         }
 
         async function addName() {
@@ -135,7 +144,7 @@
             if (!newName) return;
 
             await supabase.from('names').insert([{ name: newName }]);
-            fetchNames();
+            fetchNames(true); // Preserve the order when adding a new name
         }
 
         async function deleteName(id) {
@@ -155,7 +164,7 @@
                 list.appendChild(li);
             });
 
-            // Hide "Randomize" and "Copy" buttons when in edit mode
+            // Properly hide "Randomize" & "Copy" buttons when in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -170,7 +179,7 @@
 
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // Properly hide or show "Randomize" & "Copy" buttons
+            // Hide "Randomize" & "Copy" buttons when in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -188,7 +197,7 @@
         }
 
         supabase.channel('names')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, () => fetchNames(true)) // Preserve order in real-time updates
             .subscribe();
 
         fetchNames();
