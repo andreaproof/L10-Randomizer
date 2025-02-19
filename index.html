@@ -150,6 +150,10 @@
                     <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
                 list.appendChild(li);
             });
+
+            // Enable/disable randomize and copy buttons based on edit mode
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
 
         function toggleEditMode() {
@@ -159,16 +163,22 @@
                 btn.style.display = isEditing ? "flex" : "none";
             });
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
+
+            // Show or hide randomize & copy buttons
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
 
         function randomizeNames() {
+            if (isEditing) return; // Prevent randomizing while editing
             const list = document.getElementById("nameList");
             const names = Array.from(list.children).map(li => li.querySelector("span").textContent);
             names.sort(() => Math.random() - 0.5);
-            updateList(names.map(name => ({ name }))); // Only shuffle names, not buttons
+            updateList(names.map(name => ({ name })));
         }
 
         function copyToClipboard() {
+            if (isEditing) return; // Prevent copying while editing
             const list = document.getElementById("nameList");
             const names = Array.from(list.children).map(li => li.querySelector("span").textContent).join("\n");
             navigator.clipboard.writeText(names);
