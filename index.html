@@ -118,6 +118,7 @@
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let isEditing = false;
+        let currentOrder = []; // Stores the randomized order
 
         async function fetchNames() {
             const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
@@ -125,6 +126,7 @@
                 console.error("Error fetching names:", error);
                 return;
             }
+            currentOrder = data; // Store order for reference
             updateList(data);
         }
 
@@ -138,7 +140,8 @@
 
         async function deleteName(id) {
             await supabase.from('names').delete().eq('id', id);
-            fetchNames();
+            currentOrder = currentOrder.filter(item => item.id !== id); // Maintain order after deletion
+            updateList(currentOrder);
         }
 
         function updateList(names) {
@@ -146,13 +149,13 @@
             list.innerHTML = "";
             names.forEach(({ id, name }) => {
                 let li = document.createElement("li");
-                li.setAttribute("data-id", id); // Store the actual database ID
+                li.setAttribute("data-id", id);
                 li.innerHTML = `<span>${name}</span>
                     <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
                 list.appendChild(li);
             });
 
-            // Hide Randomize & Copy buttons if in edit mode
+            // Hide "Randomize" and "Copy" buttons when in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -161,36 +164,26 @@
             isEditing = !isEditing;
             document.querySelector(".edit-icon").innerHTML = isEditing ? "❌" : "✏️";
 
-            // Toggle delete buttons and add name button
             document.querySelectorAll(".delete-btn").forEach(btn => {
                 btn.style.display = isEditing ? "flex" : "none";
             });
+
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // Hide Randomize & Copy buttons when in edit mode
+            // Properly hide or show "Randomize" & "Copy" buttons
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
 
         function randomizeNames() {
             if (isEditing) return; // Prevent randomizing while editing
-            const list = document.getElementById("nameList");
-            let nameItems = Array.from(list.children);
-
-            // Extract text values and shuffle
-            let shuffledNames = nameItems.map(li => ({
-                id: li.getAttribute("data-id"),
-                name: li.querySelector("span").textContent
-            }));
-
-            shuffledNames.sort(() => Math.random() - 0.5);
-            updateList(shuffledNames); // Ensure delete still works properly
+            currentOrder.sort(() => Math.random() - 0.5); // Shuffle only the stored order
+            updateList(currentOrder);
         }
 
         function copyToClipboard() {
             if (isEditing) return; // Prevent copying while editing
-            const list = document.getElementById("nameList");
-            const names = Array.from(list.children).map(li => li.querySelector("span").textContent).join("\n");
+            const names = currentOrder.map(item => item.name).join("\n");
             navigator.clipboard.writeText(names);
         }
 
