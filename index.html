@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randomizer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // 🔥 Move Supabase initialization to the very top
-        const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,77 +82,93 @@
         <button onclick="addName()">➕ Add Name</button>
     </div>
 
+    <!-- Supabase Initialization Must Be in a Separate Script -->
     <script>
-        // ✅ Fetch names from Supabase and update the UI
-        async function fetchNames() {
-            console.log("Fetching names...");
-            const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
-            if (error) {
-                console.error("Error fetching names:", error);
-                return;
+        document.addEventListener("DOMContentLoaded", async function() {
+            // ✅ Supabase Initialization (after the document is fully loaded)
+            const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            console.log("Supabase initialized", supabase);
+
+            // ✅ Fetch names from Supabase and update the UI
+            async function fetchNames() {
+                console.log("Fetching names...");
+                const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
+                if (error) {
+                    console.error("Error fetching names:", error);
+                    return;
+                }
+                console.log("Names fetched:", data);
+                updateList(data);
             }
-            console.log("Names fetched:", data);
-            updateList(data);
-        }
 
-        // ✅ Add a new name to Supabase
-        async function addName() {
-            const newName = prompt("Enter a new name:");
-            if (!newName) return;
+            // ✅ Add a new name to Supabase
+            async function addName() {
+                const newName = prompt("Enter a new name:");
+                if (!newName) return;
 
-            const { data, error } = await supabase.from('names').insert([{ name: newName }]);
-            if (error) {
-                console.error("Error adding name:", error);
-            } else {
-                console.log("Name added:", data);
-                fetchNames(); // Refresh list
+                const { data, error } = await supabase.from('names').insert([{ name: newName }]);
+                if (error) {
+                    console.error("Error adding name:", error);
+                } else {
+                    console.log("Name added:", data);
+                    fetchNames(); // Refresh list
+                }
             }
-        }
 
-        // ✅ Delete a name from Supabase
-        async function deleteName(name) {
-            const { error } = await supabase.from('names').delete().match({ name });
-            if (error) {
-                console.error("Error deleting name:", error);
-            } else {
-                console.log("Name deleted:", name);
-                fetchNames();
+            // ✅ Delete a name from Supabase
+            async function deleteName(name) {
+                const { error } = await supabase.from('names').delete().match({ name });
+                if (error) {
+                    console.error("Error deleting name:", error);
+                } else {
+                    console.log("Name deleted:", name);
+                    fetchNames();
+                }
             }
-        }
 
-        // ✅ Update the displayed name list
-        function updateList(names) {
-            const list = document.getElementById("nameList");
-            list.innerHTML = "";
-            names.forEach(({ name }) => {
-                let li = document.createElement("li");
-                li.textContent = name;
-                list.appendChild(li);
-            });
-        }
+            // ✅ Update the displayed name list
+            function updateList(names) {
+                const list = document.getElementById("nameList");
+                list.innerHTML = "";
+                names.forEach(({ name }) => {
+                    let li = document.createElement("li");
+                    li.textContent = name;
+                    list.appendChild(li);
+                });
+            }
 
-        // ✅ Randomize the name order
-        function randomizeNames() {
-            const list = document.getElementById("nameList");
-            const names = Array.from(list.children).map(li => li.textContent);
-            names.sort(() => Math.random() - 0.5);
-            updateList(names.map(name => ({ name }))); // Ensure correct format
-        }
+            // ✅ Randomize the name order
+            function randomizeNames() {
+                const list = document.getElementById("nameList");
+                const names = Array.from(list.children).map(li => li.textContent);
+                names.sort(() => Math.random() - 0.5);
+                updateList(names.map(name => ({ name }))); // Ensure correct format
+            }
 
-        // ✅ Copy names to clipboard
-        function copyToClipboard() {
-            const list = document.getElementById("nameList");
-            const names = Array.from(list.children).map(li => li.textContent).join("\n");
-            navigator.clipboard.writeText(names);
-        }
+            // ✅ Copy names to clipboard
+            function copyToClipboard() {
+                const list = document.getElementById("nameList");
+                const names = Array.from(list.children).map(li => li.textContent).join("\n");
+                navigator.clipboard.writeText(names);
+            }
 
-        // ✅ Enable real-time sync
-        supabase.channel('names')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
-            .subscribe();
+            // ✅ Enable real-time sync
+            supabase.channel('names')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
+                .subscribe();
 
-        // ✅ Fetch initial names on page load
-        fetchNames();
+            // ✅ Fetch initial names on page load
+            fetchNames();
+
+            // Expose functions globally (so button clicks work)
+            window.randomizeNames = randomizeNames;
+            window.copyToClipboard = copyToClipboard;
+            window.addName = addName;
+            window.deleteName = deleteName;
+        });
     </script>
 </body>
 </html>
