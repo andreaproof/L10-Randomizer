@@ -151,7 +151,7 @@
                 list.appendChild(li);
             });
 
-            // Enable/disable randomize and copy buttons based on edit mode
+            // Toggle visibility of Randomize and Copy buttons
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -159,12 +159,14 @@
         function toggleEditMode() {
             isEditing = !isEditing;
             document.querySelector(".edit-icon").innerHTML = isEditing ? "❌" : "✏️";
+
+            // Toggle delete buttons and add name button
             document.querySelectorAll(".delete-btn").forEach(btn => {
                 btn.style.display = isEditing ? "flex" : "none";
             });
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // Show or hide randomize & copy buttons
+            // Hide Randomize & Copy to Clipboard when in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -190,6 +192,7 @@
 
         fetchNames();
 
+        // Ensure functions are available globally for button clicks
         window.toggleEditMode = toggleEditMode;
         window.randomizeNames = randomizeNames;
         window.copyToClipboard = copyToClipboard;
