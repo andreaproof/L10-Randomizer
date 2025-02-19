@@ -107,10 +107,10 @@
     <ul id="nameList"></ul>
 
     <div class="buttons-container">
-        <button onclick="randomizeNames()">🔀 Randomize</button>
-        <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
-        <button onclick="addName()" class="add-name-btn" id="addNameBtn">➕ Add Name</button>
-    </div>
+    <button id="randomizeBtn" onclick="randomizeNames()">🔀 Randomize</button>
+    <button id="copyBtn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    <button onclick="addName()" class="add-name-btn" id="addNameBtn">➕ Add Name</button>
+</div>
 
     <script>
     document.addEventListener("DOMContentLoaded", async function() {
@@ -164,9 +164,9 @@
                 list.appendChild(li);
             });
 
-            // ✅ Force hiding/showing buttons correctly
-            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "";
-            document.getElementById("copyBtn").style.display = isEditing ? "none" : "";
+            // Properly hide "Randomize" & "Copy" buttons when in edit mode
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "inline-block";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "inline-block";
         }
 
         function toggleEditMode() {
@@ -179,9 +179,9 @@
 
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // ✅ Ensuring the buttons are completely hidden in edit mode
-            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "";
-            document.getElementById("copyBtn").style.display = isEditing ? "none" : "";
+            // Hide "Randomize" & "Copy" buttons when in edit mode
+            document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "inline-block";
+            document.getElementById("copyBtn").style.display = isEditing ? "none" : "inline-block";
         }
 
         function randomizeNames() {
