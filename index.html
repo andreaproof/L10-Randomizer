@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Randomizer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 🔥 Move Supabase initialization to the very top
+        const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,11 +89,6 @@
     </div>
 
     <script>
-        // 🔥 Replace with your actual Supabase credentials
-        const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
-        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         // ✅ Fetch names from Supabase and update the UI
         async function fetchNames() {
             console.log("Fetching names...");
