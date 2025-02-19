@@ -36,8 +36,9 @@
             border-bottom: 1px solid #f0f0f0;
             text-align: center;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            padding: 10px;
         }
 
         li:last-child {
@@ -73,46 +74,10 @@
             background-color: #0056b3;
         }
 
-        .settings-icon {
+        .edit-icon {
             font-size: 24px;
             cursor: pointer;
             margin-top: 10px;
-        }
-
-        .modal {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 320px;
-            z-index: 20;
-            text-align: left;
-            position: relative;
-        }
-
-        .modal h3 {
-            margin: 0 0 15px;
-        }
-
-        .modal button {
-            width: 100%;
-            margin-top: 5px;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: transparent;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #333;
         }
 
         .delete-btn {
@@ -128,45 +93,23 @@
             justify-content: center;
         }
 
-        .overlay {
+        .add-name-btn {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 10;
+            margin-top: 10px;
         }
+
     </style>
 </head>
 <body>
 
-    <span class="settings-icon" onclick="openSettings()">⚙️</span>
+    <span class="edit-icon" onclick="toggleEditMode()">✏️</span>
 
     <ul id="nameList"></ul>
 
     <div class="buttons-container">
         <button onclick="randomizeNames()">🔀 Randomize</button>
         <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
-    </div>
-
-    <div class="overlay" onclick="closeAllModals()"></div>
-
-    <!-- Settings Menu -->
-    <div class="modal settings-menu">
-        <button class="close-btn" onclick="closeAllModals()">❌</button>
-        <h3>Settings</h3>
-        <button onclick="openNameEditor()">✏️ Edit Name List</button>
-    </div>
-
-    <!-- Name Editor -->
-    <div class="modal name-editor">
-        <button class="close-btn" onclick="closeAllModals()">❌</button>
-        <h3>Edit Names</h3>
-        <ul id="settingsList"></ul>
-        <button onclick="addName()" id="addNameBtn" style="display: none;">➕ Add Name</button>
-        <button onclick="saveNames()" id="saveNameBtn" style="display: none;">💾 Save List</button>
+        <button onclick="addName()" class="add-name-btn" id="addNameBtn">➕ Add Name</button>
     </div>
 
     <script>
@@ -174,6 +117,7 @@
             const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            let isEditing = false;
 
             async function fetchNames() {
                 const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
@@ -181,7 +125,7 @@
                     console.error("Error fetching names:", error);
                     return;
                 }
-                updateList(data, false);
+                updateList(data);
             }
 
             async function addName() {
@@ -197,46 +141,31 @@
                 fetchNames();
             }
 
-            function updateList(names, showDelete) {
+            function updateList(names) {
                 const list = document.getElementById("nameList");
                 list.innerHTML = "";
                 names.forEach(({ id, name }) => {
                     let li = document.createElement("li");
-                    li.innerHTML = `<span>${name}</span><button class="delete-btn" style="display: ${showDelete ? 'flex' : 'none'};" onclick="deleteName('${id}')">🗑</button>`;
+                    li.innerHTML = `<span>${name}</span>
+                        <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
                     list.appendChild(li);
                 });
             }
 
-            function openSettings() {
-                document.querySelector(".settings-menu").style.display = "block";
-                document.querySelector(".overlay").style.display = "block";
-            }
-
-            function openNameEditor() {
-                document.querySelector(".settings-menu").style.display = "none";
-                document.querySelector(".name-editor").style.display = "block";
-                document.getElementById("addNameBtn").style.display = "block";
-                document.getElementById("saveNameBtn").style.display = "block";
-                fetchNames();
-            }
-
-            function saveNames() {
-                document.querySelector(".name-editor").style.display = "none";
-                document.querySelector(".overlay").style.display = "none";
-                fetchNames();
-            }
-
-            function closeAllModals() {
-                document.querySelector(".settings-menu").style.display = "none";
-                document.querySelector(".name-editor").style.display = "none";
-                document.querySelector(".overlay").style.display = "none";
+            function toggleEditMode() {
+                isEditing = !isEditing;
+                document.querySelector(".edit-icon").innerHTML = isEditing ? "❌" : "✏️";
+                document.querySelectorAll(".delete-btn").forEach(btn => {
+                    btn.style.display = isEditing ? "flex" : "none";
+                });
+                document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
             }
 
             function randomizeNames() {
                 const list = document.getElementById("nameList");
                 const names = Array.from(list.children).map(li => li.textContent);
                 names.sort(() => Math.random() - 0.5);
-                updateList(names.map(name => ({ name })), false);
+                updateList(names.map(name => ({ name })));
             }
 
             function copyToClipboard() {
@@ -251,10 +180,7 @@
 
             fetchNames();
 
-            window.openSettings = openSettings;
-            window.openNameEditor = openNameEditor;
-            window.saveNames = saveNames;
-            window.closeAllModals = closeAllModals;
+            window.toggleEditMode = toggleEditMode;
             window.randomizeNames = randomizeNames;
             window.copyToClipboard = copyToClipboard;
             window.addName = addName;
