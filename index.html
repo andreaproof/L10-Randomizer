@@ -137,7 +137,7 @@
         }
 
         async function deleteName(id) {
-            await supabase.from('names').delete().match({ id });
+            await supabase.from('names').delete().eq('id', id);
             fetchNames();
         }
 
@@ -146,12 +146,13 @@
             list.innerHTML = "";
             names.forEach(({ id, name }) => {
                 let li = document.createElement("li");
+                li.setAttribute("data-id", id); // Store the actual database ID
                 li.innerHTML = `<span>${name}</span>
                     <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
                 list.appendChild(li);
             });
 
-            // Toggle visibility of Randomize and Copy buttons
+            // Hide Randomize & Copy buttons if in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -166,7 +167,7 @@
             });
             document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
 
-            // Hide Randomize & Copy to Clipboard when in edit mode
+            // Hide Randomize & Copy buttons when in edit mode
             document.getElementById("randomizeBtn").style.display = isEditing ? "none" : "block";
             document.getElementById("copyBtn").style.display = isEditing ? "none" : "block";
         }
@@ -174,9 +175,16 @@
         function randomizeNames() {
             if (isEditing) return; // Prevent randomizing while editing
             const list = document.getElementById("nameList");
-            const names = Array.from(list.children).map(li => li.querySelector("span").textContent);
-            names.sort(() => Math.random() - 0.5);
-            updateList(names.map(name => ({ name })));
+            let nameItems = Array.from(list.children);
+
+            // Extract text values and shuffle
+            let shuffledNames = nameItems.map(li => ({
+                id: li.getAttribute("data-id"),
+                name: li.querySelector("span").textContent
+            }));
+
+            shuffledNames.sort(() => Math.random() - 0.5);
+            updateList(shuffledNames); // Ensure delete still works properly
         }
 
         function copyToClipboard() {
