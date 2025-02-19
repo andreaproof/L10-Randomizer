@@ -115,15 +115,6 @@
             color: #333;
         }
 
-        .name-editor input {
-            width: calc(100% - 20px);
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            display: block;
-        }
-
         .delete-btn {
             background: transparent;
             color: red;
@@ -241,12 +232,29 @@
                 document.querySelector(".overlay").style.display = "none";
             }
 
+            function randomizeNames() {
+                const list = document.getElementById("nameList");
+                const names = Array.from(list.children).map(li => li.textContent);
+                names.sort(() => Math.random() - 0.5);
+                updateList(names.map(name => ({ name })), false);
+            }
+
+            function copyToClipboard() {
+                const list = document.getElementById("nameList");
+                const names = Array.from(list.children).map(li => li.textContent).join("\n");
+                navigator.clipboard.writeText(names);
+            }
+
             supabase.channel('names')
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
                 .subscribe();
 
             fetchNames();
 
+            window.openSettings = openSettings;
+            window.openNameEditor = openNameEditor;
+            window.saveNames = saveNames;
+            window.closeAllModals = closeAllModals;
             window.randomizeNames = randomizeNames;
             window.copyToClipboard = copyToClipboard;
             window.addName = addName;
