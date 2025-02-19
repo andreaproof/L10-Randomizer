@@ -113,79 +113,79 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async function() {
-            const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
-            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            let isEditing = false;
+    document.addEventListener("DOMContentLoaded", async function() {
+        const SUPABASE_URL = "https://fyerwbovawwdtihwxuct.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5ZXJ3Ym92YXd3ZHRpaHd4dWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk5MjEzNzUsImV4cCI6MjA1NTQ5NzM3NX0.o11ugcrghY0N1bi33T7gt42tJn0cEhTeWpe_Q7OeEj8";
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let isEditing = false;
 
-            async function fetchNames() {
-                const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
-                if (error) {
-                    console.error("Error fetching names:", error);
-                    return;
-                }
-                updateList(data);
+        async function fetchNames() {
+            const { data, error } = await supabase.from('names').select('*').order('created_at', { ascending: true });
+            if (error) {
+                console.error("Error fetching names:", error);
+                return;
             }
+            updateList(data);
+        }
 
-            async function addName() {
-                const newName = prompt("Enter a new name:");
-                if (!newName) return;
+        async function addName() {
+            const newName = prompt("Enter a new name:");
+            if (!newName) return;
 
-                await supabase.from('names').insert([{ name: newName }]);
-                fetchNames();
-            }
-
-            async function deleteName(id) {
-                await supabase.from('names').delete().match({ id });
-                fetchNames();
-            }
-
-            function updateList(names) {
-                const list = document.getElementById("nameList");
-                list.innerHTML = "";
-                names.forEach(({ id, name }) => {
-                    let li = document.createElement("li");
-                    li.innerHTML = `<span>${name}</span>
-                        <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
-                    list.appendChild(li);
-                });
-            }
-
-            function toggleEditMode() {
-                isEditing = !isEditing;
-                document.querySelector(".edit-icon").innerHTML = isEditing ? "❌" : "✏️";
-                document.querySelectorAll(".delete-btn").forEach(btn => {
-                    btn.style.display = isEditing ? "flex" : "none";
-                });
-                document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
-            }
-
-            function randomizeNames() {
-                const list = document.getElementById("nameList");
-                const names = Array.from(list.children).map(li => li.textContent);
-                names.sort(() => Math.random() - 0.5);
-                updateList(names.map(name => ({ name })));
-            }
-
-            function copyToClipboard() {
-                const list = document.getElementById("nameList");
-                const names = Array.from(list.children).map(li => li.textContent).join("\n");
-                navigator.clipboard.writeText(names);
-            }
-
-            supabase.channel('names')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
-                .subscribe();
-
+            await supabase.from('names').insert([{ name: newName }]);
             fetchNames();
+        }
 
-            window.toggleEditMode = toggleEditMode;
-            window.randomizeNames = randomizeNames;
-            window.copyToClipboard = copyToClipboard;
-            window.addName = addName;
-            window.deleteName = deleteName;
-        });
-    </script>
+        async function deleteName(id) {
+            await supabase.from('names').delete().match({ id });
+            fetchNames();
+        }
+
+        function updateList(names) {
+            const list = document.getElementById("nameList");
+            list.innerHTML = "";
+            names.forEach(({ id, name }) => {
+                let li = document.createElement("li");
+                li.innerHTML = `<span>${name}</span>
+                    <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleEditMode() {
+            isEditing = !isEditing;
+            document.querySelector(".edit-icon").innerHTML = isEditing ? "❌" : "✏️";
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.style.display = isEditing ? "flex" : "none";
+            });
+            document.getElementById("addNameBtn").style.display = isEditing ? "block" : "none";
+        }
+
+        function randomizeNames() {
+            const list = document.getElementById("nameList");
+            const names = Array.from(list.children).map(li => li.querySelector("span").textContent);
+            names.sort(() => Math.random() - 0.5);
+            updateList(names.map(name => ({ name }))); // Only shuffle names, not buttons
+        }
+
+        function copyToClipboard() {
+            const list = document.getElementById("nameList");
+            const names = Array.from(list.children).map(li => li.querySelector("span").textContent).join("\n");
+            navigator.clipboard.writeText(names);
+        }
+
+        supabase.channel('names')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, fetchNames)
+            .subscribe();
+
+        fetchNames();
+
+        window.toggleEditMode = toggleEditMode;
+        window.randomizeNames = randomizeNames;
+        window.copyToClipboard = copyToClipboard;
+        window.addName = addName;
+        window.deleteName = deleteName;
+    });
+</script>
 </body>
 </html>
