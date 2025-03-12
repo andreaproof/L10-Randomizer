@@ -206,6 +206,46 @@
             alert("Copied to clipboard!");
         }
 
+        function copyToClipboard() {
+            if (isEditing) return; // Prevent copying while editing
+
+            const names = Array.from(document.querySelectorAll(".name-text")).map(el => el.textContent).join("\n");
+        
+            // ✅ Notion-compatible clipboard method using a hidden textarea
+            let textarea = document.createElement("textarea");
+            textarea.value = names;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+        
+            // ✅ Show a toast message
+            showToast("✅ Copied to clipboard!");
+            }
+
+            // ✅ Toast Notification Function
+            function showToast(message) {
+                let toast = document.createElement("div");
+                toast.textContent = message;
+                toast.style.position = "fixed";
+                toast.style.bottom = "20px";
+                toast.style.left = "50%";
+                toast.style.transform = "translateX(-50%)";
+                toast.style.backgroundColor = "#333";
+                toast.style.color = "#fff";
+                toast.style.padding = "10px 20px";
+                toast.style.borderRadius = "8px";
+                toast.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+                toast.style.fontSize = "14px";
+                toast.style.zIndex = "1000";
+                document.body.appendChild(toast);
+            
+                setTimeout(() => {
+                    toast.style.opacity = "0";
+                    setTimeout(() => toast.remove(), 500);
+                }, 2000);
+            }
+
         supabase.channel('names')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'names' }, () => fetchNames(true)) // Preserve order in real-time updates
             .subscribe();
@@ -219,6 +259,7 @@
         window.addName = addName;
         window.deleteName = deleteName;
     });
+        
 </script>
 
 </body>
