@@ -159,7 +159,7 @@
             names.forEach(({ id, name }) => {
                 let li = document.createElement("li");
                 li.setAttribute("data-id", id);
-                li.innerHTML = `<span>${name}</span>
+                li.innerHTML = `<span class="name-text">${name}</span>
                     <button class="delete-btn" onclick="deleteName('${id}')" style="display: ${isEditing ? 'flex' : 'none'};">🗑</button>`;
                 list.appendChild(li);
             });
@@ -192,8 +192,18 @@
 
         function copyToClipboard() {
             if (isEditing) return; // Prevent copying while editing
-            const names = currentOrder.map(item => item.name).join("\n");
-            navigator.clipboard.writeText(names);
+
+            const names = Array.from(document.querySelectorAll(".name-text")).map(el => el.textContent).join("\n");
+
+            // ✅ Notion-compatible clipboard method using a hidden textarea
+            let textarea = document.createElement("textarea");
+            textarea.value = names;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+
+            alert("Copied to clipboard!");
         }
 
         supabase.channel('names')
@@ -210,5 +220,6 @@
         window.deleteName = deleteName;
     });
 </script>
+
 </body>
 </html>
